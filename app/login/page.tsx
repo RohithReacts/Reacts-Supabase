@@ -92,7 +92,7 @@ export default async function LoginPage(props: {
               {/* Submit Button */}
               <Button
                 formAction={login}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                className="w-full bg-blue-600 cursor-pointer hover:bg-blue-700 text-white"
               >
                 Sign in
               </Button>
