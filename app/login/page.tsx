@@ -24,14 +24,7 @@ export default async function LoginPage(props: {
 
       <div className="relative mx-auto flex min-h-screen max-w-7xl items-center justify-center p-4">
         <Card className="w-full max-w-md border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_10px_50px_rgba(0,0,0,0.45)] text-zinc-100">
-          <CardHeader className="border-b border-white/10">
-            <CardTitle className="text-xl font-semibold tracking-tight">
-              Sign in to your account
-            </CardTitle>
-            <CardDescription className="text-zinc-400">
-              Welcome back. Please enter your credentials.
-            </CardDescription>
-          </CardHeader>
+          
 
           <CardContent className="pt-6 space-y-4">
             {/* Success Message */}
@@ -52,7 +45,7 @@ export default async function LoginPage(props: {
               {/* Email */}
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-zinc-300">
-                  Email address
+                  Email
                 </Label>
                 <Input
                   id="email"
@@ -109,9 +102,7 @@ export default async function LoginPage(props: {
             </p>
           </CardContent>
 
-          <CardFooter className="border-t border-white/10 bg-black/20 text-xs text-zinc-500 justify-center">
-            By continuing you agree to our terms.
-          </CardFooter>
+          
         </Card>
       </div>
     </div>

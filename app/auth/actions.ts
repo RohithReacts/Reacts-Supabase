@@ -23,7 +23,7 @@ export async function login(formData: FormData) {
   }
 
   revalidatePath("/", "layout");
-  redirect("/");
+  redirect("/?toast=Signed in successfully");
 }
 
 export async function signup(formData: FormData) {
@@ -48,14 +48,16 @@ export async function signup(formData: FormData) {
     return redirect("/signup?error=" + encodeURIComponent(error.message));
   }
 
-  return redirect("/verify-email");
+  return redirect(
+    "/verify-email?toast=Check your email to verify your account"
+  );
 }
 
 export async function signout() {
   const supabase = await createClient();
   await supabase.auth.signOut();
   revalidatePath("/", "layout");
-  redirect("/login");
+  redirect("/login?toast=Signed out successfully");
 }
 
 export async function forgotPassword(formData: FormData) {

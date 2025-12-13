@@ -28,14 +28,7 @@ export default async function SignupPage(props: {
       <div className="relative mx-auto flex min-h-screen max-w-7xl items-center justify-center p-4">
         {/* ⭐ SHADCN CARD */}
         <Card className="w-full max-w-md border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_10px_50px_rgba(0,0,0,0.45)] text-zinc-100">
-          <CardHeader className="border-b border-white/10">
-            <CardTitle className="text-xl font-semibold">
-              Create your account
-            </CardTitle>
-            <CardDescription className="text-zinc-400">
-              Start using rohithreacts in seconds
-            </CardDescription>
-          </CardHeader>
+          
 
           <CardContent className="pt-6">
             <form action={signup} className="space-y-4">
@@ -94,9 +87,7 @@ export default async function SignupPage(props: {
             </form>
           </CardContent>
 
-          <CardFooter className="border-t border-white/10 bg-black/20 text-xs text-zinc-500">
-            By continuing you agree to our terms.
-          </CardFooter>
+          
         </Card>
       </div>
     </div>

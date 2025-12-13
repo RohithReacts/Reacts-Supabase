@@ -73,7 +73,14 @@ export function Navbar(): React.JSX.Element {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
         {/* Logo */}
         <Link href="/dashboard" className="flex items-center space-x-2 group">
-          <div className="relative w-20 h-20"></div>
+          <div className="relative w-20 h-20">
+            <Image
+              src="/logo.png"
+              alt="Reacts Logo"
+              fill
+              className="object-contain rounded-full transition-transform duration-300 group-hover:rotate-35"
+            />
+          </div>
           <span className="text-xl font-sans text-gray-900 dark:text-gray-100 transition-colors">
             Reacts
           </span>
