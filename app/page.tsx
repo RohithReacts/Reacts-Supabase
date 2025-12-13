@@ -16,8 +16,8 @@ export default async function Home() {
   return (
     <div className="flex min-h-screen flex-col bg-black text-white selection:bg-zinc-800 selection:text-zinc-100">
       {/* Navigation */}
-      <nav className="flex items-center justify-between px-6 py-4 border-b border-white/10">
-        <div className="text-xl font-semibold tracking-tighter cursor-pointer">Reacts Supabase</div>
+      <nav className="flex items-center justify-between px-6 py-4  border-white/10">
+        
         
       </nav>
 

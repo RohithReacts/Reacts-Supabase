@@ -1,6 +1,6 @@
 import { Laptop, Smartphone, User } from "lucide-react";
 import { ReactElement } from "react";
-import UserCard from "./userinfo";
+
 
 
 
@@ -82,8 +82,7 @@ export default function AboutPage() {
         ))}
       </div>
       <div className="mr-20">
-      <UserCard/>
-
+     
       </div>
     </section>
   );

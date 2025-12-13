@@ -3,7 +3,7 @@
 import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Menu, X, ChevronDown } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   NavigationMenu,
@@ -17,232 +17,206 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-
-import { ModeToggle } from "./darkmode";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { signout } from "@/app/auth/actions";
 import { Button } from "../ui/button";
-
-interface NavDropdownItem {
-  href: string;
-  label: string;
-}
+import { User } from "@supabase/supabase-js";
+import { SettingsDialog } from "./settings-dialog";
 
 interface NavItem {
   href: string;
   label: string;
-  dropdown?: NavDropdownItem[];
 }
 
-export function Navbar(): React.JSX.Element {
+interface NavbarProps {
+  user?: User | null;
+}
+
+export function Navbar({ user }: NavbarProps): React.JSX.Element {
   const [isOpen, setIsOpen] = React.useState(false);
+  const [showSettings, setShowSettings] = React.useState(false);
   const [activeSection, setActiveSection] = React.useState("");
 
-  const navItems = React.useMemo<NavItem[]>(
-    () => [
-      { href: "#about", label: "About" },
-      { href: "#connect", label: "Connect" },
-    ],
-    []
-  );
+  const navItems: NavItem[] = [
+    { href: "#about", label: "About" },
+    { href: "#connect", label: "Connect" },
+  ];
 
   React.useEffect(() => {
-    const handleScroll = (): void => {
-      const sections = navItems.filter((i) => i.href.startsWith("#"));
+    const handleScroll = () => {
       let current = "";
-      for (const item of sections) {
-        const section = document.querySelector<HTMLElement>(item.href);
+      navItems.forEach((item) => {
+        const section = document.querySelector(item.href);
         if (section) {
           const rect = section.getBoundingClientRect();
-          if (rect.top <= 80 && rect.bottom >= 80) {
-            current = item.href;
-            break;
-          }
+          if (rect.top <= 80 && rect.bottom >= 80) current = item.href;
         }
-      }
+      });
       setActiveSection(current);
     };
 
     window.addEventListener("scroll", handleScroll);
     handleScroll();
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [navItems]);
+  }, []);
 
   return (
-    <nav className="fixed top-0 left-0 w-full z-50 backdrop-blur-xl border-b border-gray-200 dark:border-gray-800 bg-white/70 dark:bg-black/50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
+    <nav
+      className="
+        fixed top-0 left-0 z-50 w-full backdrop-blur-xl
+        
+        bg-white/80 dark:bg-black/50
+        shadow-sm dark:shadow-none
+      "
+    >
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo */}
-        <Link href="/dashboard" className="flex items-center space-x-2 group">
-          <div className="relative w-20 h-20">
+        <Link href="/dashboard" className="flex items-center gap-2">
+          <div className="relative h-13 w-13">
             <Image
               src="/logo.png"
               alt="Reacts Logo"
               fill
-              className="object-contain rounded-full transition-transform duration-300 group-hover:rotate-35"
+              className="rounded-full object-contain"
             />
           </div>
-          <span className="text-xl font-sans text-gray-900 dark:text-gray-100 transition-colors">
+          <span className="text-lg font-sans tracking-widest text-gray-900 dark:text-gray-100">
             Reacts
           </span>
         </Link>
 
-        {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center space-x-4">
+        {/* Desktop */}
+        <div className="hidden md:flex items-center gap-4">
           <NavigationMenu viewport={false}>
             <NavigationMenuList>
-              {navItems.map((item) =>
-                item.dropdown ? (
-                  <NavigationMenuItem key={item.href}>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger
-                        className={`${navigationMenuTriggerStyle()} cursor-pointer flex items-center gap-1`}
-                      >
-                        {item.label} <ChevronDown className="w-4 h-4" />
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent className="bg-white cursor-pointer dark:bg-gray-900 rounded-md shadow-lg">
-                        {item.dropdown.map((drop) => (
-                          <DropdownMenuItem key={drop.href} asChild>
-                            <Link
-                              href={drop.href}
-                              className="w-full px-3 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-800 rounded"
-                            >
-                              {drop.label}
-                            </Link>
-                          </DropdownMenuItem>
-                        ))}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </NavigationMenuItem>
-                ) : (
-                  <NavigationMenuItem key={item.href}>
-                    {item.href.startsWith("#") ? (
-                      <a
-                        href={item.href}
-                        className={`${navigationMenuTriggerStyle()} ${
-                          activeSection === item.href
-                            ? ""
-                            : "text-gray-800 dark:text-gray-200 cursor-pointer"
-                        }`}
-                      >
-                        {item.label}
-                      </a>
-                    ) : (
-                      <NavigationMenuLink asChild>
-                        <Link
-                          href={item.href}
-                          className="text-gray-800 dark:text-gray-200"
-                        >
-                          {item.label}
-                        </Link>
-                      </NavigationMenuLink>
-                    )}
-                  </NavigationMenuItem>
-                )
-              )}
+              {navItems.map((item) => (
+                <NavigationMenuItem key={item.href}>
+                  <a
+                    href={item.href}
+                    className={`
+                      ${navigationMenuTriggerStyle()}
+                      ${
+                        activeSection === item.href
+                          ? "text-blue-600 dark:text-blue-400"
+                          : "text-gray-700 hover:text-gray-900 dark:text-gray-200"
+                      }
+                    `}
+                  >
+                    {item.label}
+                  </a>
+                </NavigationMenuItem>
+              ))}
             </NavigationMenuList>
           </NavigationMenu>
 
-          <form action={signout}>
-            <Button variant="outline" className="cursor-pointer">
-              Sign Out
-            </Button>
-          </form>
+          {/* Avatar */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Avatar className="
+        cursor-pointer
+        h-9 w-9
+        border border-gray-200 dark:border-gray-700
+        bg-white dark:bg-gray-900
+        ring-1 ring-black/10 dark:ring-white/20
+        shadow-md
+      ">
+                <AvatarImage src={user?.user_metadata?.avatar_url} />
+                <AvatarFallback className="text-gray-400 text-xl font-sans dark:text-gray-300">
+                  {user?.email?.[0]?.toUpperCase() ?? "U"}
+                </AvatarFallback>
+              </Avatar>
+            </DropdownMenuTrigger>
 
-          <ModeToggle />
+            <DropdownMenuContent
+              align="end"
+              className="
+                bg-white mt-3 p-2 dark:bg-gray-900
+                border border-gray-200 dark:border-gray-800
+                shadow-lg
+              "
+            >
+            
+              <DropdownMenuItem className="font-sans justify-center items-center" onSelect={() => setShowSettings(true)}>
+                Account Settings
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <form action={signout} className="w-full">
+                  <button className="w-full text-left justify-center items-center font-sans">Sign Out</button>
+                </form>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+         
         </div>
 
-        {/* Mobile Hamburger */}
-        <div className="md:hidden">
-          <button
-            onClick={() => setIsOpen((prev) => !prev)}
-            className="p-2"
-            aria-label="Toggle menu"
-          >
-            {isOpen ? (
-              <X className="h-6 w-6 text-gray-800 dark:text-gray-200" />
-            ) : (
-              <Menu className="h-6 w-6 text-gray-800 dark:text-gray-200" />
-            )}
-          </button>
-        </div>
+        {/* Mobile */}
+        <button
+          onClick={() => setIsOpen((p) => !p)}
+          className="md:hidden p-2 text-gray-700 dark:text-gray-200"
+        >
+          {isOpen ? <X /> : <Menu />}
+        </button>
       </div>
 
       {/* Mobile Menu */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
+            initial={{ opacity: 0, y: -12 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-            className="md:hidden px-4 pb-4 bg-white dark:bg-black border-t border-gray-200 dark:border-gray-800"
+            exit={{ opacity: 0, y: -12 }}
+            className="
+              md:hidden border-t border-gray-200 dark:border-gray-800
+              bg-white dark:bg-black px-4 pb-4
+            "
           >
-            <ul className="flex flex-col justify-center items-center space-y-2">
+            <ul className="space-y-2 text-center">
               {navItems.map((item) => (
-                <li key={item.href} className="w-full text-center m-2">
-                  {item.dropdown ? (
-                    <DropdownMenu>
-                      <DropdownMenuTrigger className="w-full py-2 font-semibold text-gray-800 dark:text-gray-200 flex justify-center items-center gap-1">
-                        {item.label} <ChevronDown className="w-4 h-4" />
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent className="bg-white dark:bg-gray-900 rounded-md shadow-lg w-full">
-                        {item.dropdown.map((drop) => (
-                          <DropdownMenuItem key={drop.href} asChild>
-                            <Link
-                              href={drop.href}
-                              onClick={() => setIsOpen(false)}
-                              className="block py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-800 rounded"
-                            >
-                              {drop.label}
-                            </Link>
-                          </DropdownMenuItem>
-                        ))}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  ) : item.href.startsWith("#") ? (
-                    <a
-                      href={item.href}
-                      onClick={() => setIsOpen(false)}
-                      className={`block py-2 ${
+                <li key={item.href}>
+                  <a
+                    href={item.href}
+                    onClick={() => setIsOpen(false)}
+                    className={`
+                      block py-2
+                      ${
                         activeSection === item.href
-                          ? "text-blue-600 dark:text-blue-400 font-semibold"
+                          ? "text-blue-600 dark:text-blue-400 font-medium"
                           : "text-gray-800 dark:text-gray-200"
-                      }`}
-                    >
-                      {item.label}
-                    </a>
-                  ) : (
-                    <Link
-                      href={item.href}
-                      onClick={() => setIsOpen(false)}
-                      className="block py-2 text-gray-800 dark:text-gray-200"
-                    >
-                      {item.label}
-                    </Link>
-                  )}
+                      }
+                    `}
+                  >
+                    {item.label}
+                  </a>
                 </li>
               ))}
 
-              {/* ⭐ MOBILE SIGN OUT BUTTON */}
-              <li className="w-full flex justify-center pt-2">
-                <form action={signout} className="w-full flex justify-center">
-                  <Button
-                    variant="outline"
-                    className="w-40 cursor-pointer"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    Sign Out
-                  </Button>
-                </form>
-              </li>
+              <form action={signout}>
+                <Button
+                  variant="outline"
+                  className="mt-3 w-full"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Sign Out
+                </Button>
+              </form>
 
-              <li>
-                <ModeToggle />
-              </li>
+            
             </ul>
           </motion.div>
         )}
       </AnimatePresence>
+
+      {user && (
+        <SettingsDialog
+          user={user}
+          open={showSettings}
+          onOpenChange={setShowSettings}
+        />
+      )}
     </nav>
   );
 }

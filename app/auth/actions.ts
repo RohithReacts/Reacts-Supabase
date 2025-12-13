@@ -120,3 +120,61 @@ export async function resetPassword(formData: FormData) {
 
   return redirect("/login?message=Password updated successfully");
 }
+
+export async function updateProfile(formData: FormData) {
+  const supabase = await createClient();
+
+  const fullName = formData.get("fullName") as string;
+  const email = formData.get("email") as string;
+
+  const updates: { email?: string; data?: { full_name: string } } = {};
+
+  if (email) {
+    updates.email = email;
+  }
+  if (fullName) {
+    updates.data = { full_name: fullName };
+  }
+
+  const { data, error } = await supabase.auth.updateUser(updates);
+
+  if (error) {
+    console.error("Update profile error:", error);
+    return { error: error.message };
+  }
+
+  revalidatePath("/", "layout");
+
+  if (email && data.user.email !== email) {
+    return {
+      success: true,
+      message:
+        "Profile updated. Please check your email to verify the new address.",
+    };
+  }
+
+  return { success: true, message: "Profile updated successfully" };
+}
+
+export async function updatePassword(formData: FormData) {
+  const supabase = await createClient();
+
+  const password = formData.get("password") as string;
+  const confirmPassword = formData.get("confirmPassword") as string;
+
+  if (password !== confirmPassword) {
+    return { error: "Passwords do not match" };
+  }
+
+  const { error } = await supabase.auth.updateUser({
+    password,
+  });
+
+  if (error) {
+    console.error("Update password error:", error);
+    return { error: error.message };
+  }
+
+  revalidatePath("/", "layout");
+  return { success: true, message: "Password updated successfully" };
+}

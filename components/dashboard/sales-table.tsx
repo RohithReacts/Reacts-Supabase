@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import * as XLSX from "xlsx";
 import {
   Table,
   TableBody,
@@ -22,7 +25,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, Search } from "lucide-react";
 import { toast } from "sonner";
 import { Checkbox } from "@/components/ui/checkbox";
 
@@ -51,6 +54,7 @@ export function SalesTable() {
     total: number;
   } | null>(null);
   const [showSelectedDialog, setShowSelectedDialog] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const supabase = createClient();
 
@@ -189,11 +193,63 @@ export function SalesTable() {
     setCalculationResult({ count: selected.length, today, total });
   };
 
+  const handleExportPDF = () => {
+    const doc = new jsPDF();
+
+    doc.setFontSize(18);
+    doc.text("Sales Report", 14, 22);
+
+    const selectedUsers = users.filter((u) => selectedRows.has(u.id));
+    const tableData = selectedUsers.map((user) => [
+      user.today_sales,
+      user.total_sales,
+      new Date(user.created_at).toLocaleString(),
+    ]);
+
+    autoTable(doc, {
+      head: [["Today Sales", "Total Sales", "Date Time"]],
+      body: tableData,
+      startY: 30,
+    });
+
+    doc.save("sales-report.pdf");
+    toast.success("PDF exported successfully");
+  };
+
+  const handleExportExcel = () => {
+    const selectedUsers = users.filter((u) => selectedRows.has(u.id));
+    const tableData = selectedUsers.map((user) => ({
+      "Today Sales": user.today_sales,
+      "Total Sales": user.total_sales,
+      "Date Time": new Date(user.created_at).toLocaleString(),
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(tableData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Sales Report");
+
+    XLSX.writeFile(workbook, "sales-report.xlsx");
+    toast.success("Excel exported successfully");
+  };
+
+  // Filter users based on search query
+  const filteredUsers = users.filter((user) => {
+    const searchLower = searchQuery.toLowerCase();
+    return (
+      user.today_sales.toLowerCase().includes(searchLower) ||
+      user.total_sales.toLowerCase().includes(searchLower) ||
+      new Date(user.created_at)
+        .toLocaleString()
+        .toLowerCase()
+        .includes(searchLower)
+    );
+  });
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-4">
-          <h2 className="text-xl font-semibold">Sales Reports</h2>
+          <h2 className="text-xl font-sans tracking-wider">Sales Reports</h2>
           {selectedRows.size > 0 && (
             <div className="flex gap-2">
               <Button
@@ -209,6 +265,20 @@ export function SalesTable() {
                 variant="outline"
               >
                 Show
+              </Button>
+              <Button
+                className="cursor-pointer"
+                onClick={handleExportPDF}
+                variant="outline"
+              >
+                Export PDF
+              </Button>
+              <Button
+                className="cursor-pointer"
+                onClick={handleExportExcel}
+                variant="outline"
+              >
+                Export Excel
               </Button>
             </div>
           )}
@@ -362,6 +432,18 @@ export function SalesTable() {
           </Table>
         </DialogContent>
       </Dialog>
+
+      {/* Search Input */}
+      <div className="relative max-w-sm">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
+        <Input
+          placeholder="Search sales..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-10"
+        />
+      </div>
+
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -369,7 +451,8 @@ export function SalesTable() {
               <TableHead className="w-[50px]">
                 <Checkbox
                   checked={
-                    users.length > 0 && selectedRows.size === users.length
+                    filteredUsers.length > 0 &&
+                    selectedRows.size === filteredUsers.length
                   }
                   onCheckedChange={toggleSelectAll}
                   aria-label="Select all"
@@ -382,14 +465,14 @@ export function SalesTable() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {users.length === 0 ? (
+            {filteredUsers.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} className="h-24 text-center">
                   No results.
                 </TableCell>
               </TableRow>
             ) : (
-              users.map((user) => (
+              filteredUsers.map((user) => (
                 <TableRow key={user.id}>
                   <TableCell>
                     <Checkbox
