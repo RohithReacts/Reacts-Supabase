@@ -1,4 +1,4 @@
-import { Laptop, Smartphone, User } from "lucide-react";
+import { Laptop, ShieldCheck, Smartphone, User } from "lucide-react";
 import { ReactElement } from "react";
 
 
@@ -30,6 +30,12 @@ export default function AboutPage() {
       description:
         "Make decision-making faster with shared dashboards.",
     },
+    {
+    icon: <ShieldCheck className="w-8 h-8 text-primary" />,
+    title: "Secure & Reliable",
+    description:
+      "Enterprise-grade security with role-based access and data protection.",
+  },
    
   ];
 
@@ -81,9 +87,7 @@ export default function AboutPage() {
           </div>
         ))}
       </div>
-      <div className="mr-20">
      
-      </div>
     </section>
   );
 }

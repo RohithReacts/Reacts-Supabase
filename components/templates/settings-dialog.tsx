@@ -131,7 +131,7 @@ export function SettingsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] dark:bg-black">
         <DialogHeader>
           <DialogTitle>Account Settings</DialogTitle>
           <DialogDescription>

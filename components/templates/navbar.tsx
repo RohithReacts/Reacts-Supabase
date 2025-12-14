@@ -100,7 +100,7 @@ export function Navbar({ user }: NavbarProps): React.JSX.Element {
                       ${navigationMenuTriggerStyle()}
                       ${
                         activeSection === item.href
-                          ? "text-blue-600 dark:text-blue-400"
+                          ? "font-medium"
                           : "text-gray-700 hover:text-gray-900 dark:text-gray-200"
                       }
                     `}
@@ -115,14 +115,16 @@ export function Navbar({ user }: NavbarProps): React.JSX.Element {
           {/* Avatar */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Avatar className="
+              <Avatar
+                className="
         cursor-pointer
-        h-9 w-9
+        h-11 w-11
         border border-gray-200 dark:border-gray-700
         bg-white dark:bg-gray-900
-        ring-1 ring-black/10 dark:ring-white/20
-        shadow-md
-      ">
+         
+        
+      "
+              >
                 <AvatarImage src={user?.user_metadata?.avatar_url} />
                 <AvatarFallback className="text-gray-400 text-xl font-sans dark:text-gray-300">
                   {user?.email?.[0]?.toUpperCase() ?? "U"}
@@ -133,24 +135,29 @@ export function Navbar({ user }: NavbarProps): React.JSX.Element {
             <DropdownMenuContent
               align="end"
               className="
-                bg-white mt-3 p-2 dark:bg-gray-900
-                border border-gray-200 dark:border-gray-800
-                shadow-lg
+                bg-white mt-3 p-2 dark:bg-black
+              
+                
               "
             >
-            
-              <DropdownMenuItem className="font-sans justify-center items-center" onSelect={() => setShowSettings(true)}>
-                Account Settings
+              <DropdownMenuItem
+                className="font-sans justify-center items-center"
+                onSelect={() => setShowSettings(true)}
+              >
+                My Account
               </DropdownMenuItem>
-              <DropdownMenuItem asChild>
+              <DropdownMenuItem
+                className="font-sans justify-center items-center"
+                asChild
+              >
                 <form action={signout} className="w-full">
-                  <button className="w-full text-left justify-center items-center font-sans">Sign Out</button>
+                  <button className="justify-center items-center font-sans">
+                    Sign Out
+                  </button>
                 </form>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-
-         
         </div>
 
         {/* Mobile */}
@@ -184,7 +191,7 @@ export function Navbar({ user }: NavbarProps): React.JSX.Element {
                       block py-2
                       ${
                         activeSection === item.href
-                          ? "text-blue-600 dark:text-blue-400 font-medium"
+                          ? "font-medium"
                           : "text-gray-800 dark:text-gray-200"
                       }
                     `}
@@ -203,8 +210,6 @@ export function Navbar({ user }: NavbarProps): React.JSX.Element {
                   Sign Out
                 </Button>
               </form>
-
-            
             </ul>
           </motion.div>
         )}

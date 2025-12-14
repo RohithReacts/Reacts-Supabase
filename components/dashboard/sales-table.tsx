@@ -31,8 +31,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 
 interface SaleUser {
   id: string;
-  today_sales: string;
-  total_sales: string;
+  product: string;
+  status: string;
+  method: string;
+  amount: string;
   created_at: string;
 }
 
@@ -44,14 +46,15 @@ export function SalesTable() {
   const [loading, setLoading] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
-    todaySales: "",
-    totalSales: "",
+    product: "",
+    status: "",
+    method: "",
+    amount: "",
   });
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
   const [calculationResult, setCalculationResult] = useState<{
     count: number;
-    today: number;
-    total: number;
+    totalAmount: number;
   } | null>(null);
   const [showSelectedDialog, setShowSelectedDialog] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -84,8 +87,10 @@ export function SalesTable() {
   const handleEdit = (user: SaleUser) => {
     setEditingId(user.id);
     setFormData({
-      todaySales: user.today_sales,
-      totalSales: user.total_sales,
+      product: user.product,
+      status: user.status,
+      method: user.method,
+      amount: user.amount,
     });
     setOpen(true);
   };
@@ -123,8 +128,10 @@ export function SalesTable() {
         const { error } = await supabase
           .from("sales")
           .update({
-            today_sales: formData.todaySales,
-            total_sales: formData.totalSales,
+            product: formData.product,
+            status: formData.status,
+            method: formData.method,
+            amount: formData.amount,
           })
           .eq("id", editingId);
 
@@ -133,8 +140,10 @@ export function SalesTable() {
       } else {
         const { error } = await supabase.from("sales").insert([
           {
-            today_sales: formData.todaySales,
-            total_sales: formData.totalSales,
+            product: formData.product,
+            status: formData.status,
+            method: formData.method,
+            amount: formData.amount,
           },
         ]);
 
@@ -142,7 +151,7 @@ export function SalesTable() {
         toast.success("Sale added successfully");
       }
 
-      setFormData({ todaySales: "", totalSales: "" });
+      setFormData({ product: "", status: "", method: "", amount: "" });
       setOpen(false);
       setEditingId(null);
       fetchSales();
@@ -158,7 +167,7 @@ export function SalesTable() {
     setOpen(open);
     if (!open) {
       setEditingId(null);
-      setFormData({ todaySales: "", totalSales: "" });
+      setFormData({ product: "", status: "", method: "", amount: "" });
     }
   };
 
@@ -182,15 +191,11 @@ export function SalesTable() {
 
   const handleCalculate = () => {
     const selected = users.filter((u) => selectedRows.has(u.id));
-    const today = selected.reduce(
-      (sum, u) => sum + parseFloat(u.today_sales || "0"),
+    const totalAmount = selected.reduce(
+      (sum, u) => sum + parseFloat(u.amount.replace(/,/g, "") || "0"),
       0
     );
-    const total = selected.reduce(
-      (sum, u) => sum + parseFloat(u.total_sales || "0"),
-      0
-    );
-    setCalculationResult({ count: selected.length, today, total });
+    setCalculationResult({ count: selected.length, totalAmount });
   };
 
   const handleExportPDF = () => {
@@ -201,13 +206,15 @@ export function SalesTable() {
 
     const selectedUsers = users.filter((u) => selectedRows.has(u.id));
     const tableData = selectedUsers.map((user) => [
-      user.today_sales,
-      user.total_sales,
+      user.product,
+      user.status,
+      user.method,
+      user.amount,
       new Date(user.created_at).toLocaleString(),
     ]);
 
     autoTable(doc, {
-      head: [["Today Sales", "Total Sales", "Date Time"]],
+      head: [["Product", "Status", "Method", "Amount", "Date Time"]],
       body: tableData,
       startY: 30,
     });
@@ -219,8 +226,10 @@ export function SalesTable() {
   const handleExportExcel = () => {
     const selectedUsers = users.filter((u) => selectedRows.has(u.id));
     const tableData = selectedUsers.map((user) => ({
-      "Today Sales": user.today_sales,
-      "Total Sales": user.total_sales,
+      Product: user.product,
+      Status: user.status,
+      Method: user.method,
+      Amount: user.amount,
       "Date Time": new Date(user.created_at).toLocaleString(),
     }));
 
@@ -236,8 +245,10 @@ export function SalesTable() {
   const filteredUsers = users.filter((user) => {
     const searchLower = searchQuery.toLowerCase();
     return (
-      user.today_sales.toLowerCase().includes(searchLower) ||
-      user.total_sales.toLowerCase().includes(searchLower) ||
+      user.product.toLowerCase().includes(searchLower) ||
+      user.status.toLowerCase().includes(searchLower) ||
+      user.method.toLowerCase().includes(searchLower) ||
+      user.amount.toLowerCase().includes(searchLower) ||
       new Date(user.created_at)
         .toLocaleString()
         .toLowerCase()
@@ -287,7 +298,7 @@ export function SalesTable() {
           <DialogTrigger asChild>
             <Button className="cursor-pointer">Add New User</Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent className="sm:max-w-[425px] dark:bg-black">
             <DialogHeader>
               <DialogTitle>
                 {editingId ? "Edit Sale" : "Add New User"}
@@ -302,26 +313,52 @@ export function SalesTable() {
             <form onSubmit={handleSubmit}>
               <div className="grid gap-4 py-4">
                 <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="todaySales" className="text-right">
-                    Today Sales
+                  <Label htmlFor="product" className="text-right">
+                    Product
                   </Label>
                   <Input
-                    id="todaySales"
-                    name="todaySales"
-                    value={formData.todaySales}
+                    id="product"
+                    name="product"
+                    value={formData.product}
                     onChange={handleInputChange}
                     className="col-span-2"
                     required
                   />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="totalSales" className="text-right">
-                    Total Sales
+                  <Label htmlFor="status" className="text-right">
+                    Status
                   </Label>
                   <Input
-                    id="totalSales"
-                    name="totalSales"
-                    value={formData.totalSales}
+                    id="status"
+                    name="status"
+                    value={formData.status}
+                    onChange={handleInputChange}
+                    className="col-span-2"
+                    required
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="method" className="text-right">
+                    Method
+                  </Label>
+                  <Input
+                    id="method"
+                    name="method"
+                    value={formData.method}
+                    onChange={handleInputChange}
+                    className="col-span-2"
+                    required
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="amount" className="text-right">
+                    Amount
+                  </Label>
+                  <Input
+                    id="amount"
+                    name="amount"
+                    value={formData.amount}
                     onChange={handleInputChange}
                     className="col-span-2"
                     required
@@ -342,7 +379,7 @@ export function SalesTable() {
         </Dialog>
 
         <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-          <DialogContent className="h-[200px] w-full sm:w-[425px]">
+          <DialogContent className="h-[200px] w-full sm:w-[425px] dark:bg-black">
             <DialogHeader>
               <DialogTitle>Are you sure?</DialogTitle>
               <DialogDescription>
@@ -361,7 +398,7 @@ export function SalesTable() {
               </Button>
               <Button
                 className="cursor-pointer"
-                variant="destructive"
+                variant="default"
                 size="lg"
                 onClick={confirmDelete}
               >
@@ -376,7 +413,7 @@ export function SalesTable() {
         open={!!calculationResult}
         onOpenChange={(open) => !open && setCalculationResult(null)}
       >
-        <DialogContent>
+        <DialogContent className="dark:bg-black">
           <DialogHeader>
             <DialogTitle>Calculation Result</DialogTitle>
             <DialogDescription>
@@ -385,15 +422,9 @@ export function SalesTable() {
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label className="text-right">Today Sales</Label>
+              <Label className="text-right">Total Amount</Label>
               <div className="col-span-3 font-medium">
-                {calculationResult?.today.toFixed(2)}
-              </div>
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label className="text-right">Total Sales</Label>
-              <div className="col-span-3 font-medium">
-                {calculationResult?.total.toFixed(2)}
+                {calculationResult?.totalAmount.toFixed(2)}
               </div>
             </div>
           </div>
@@ -411,8 +442,10 @@ export function SalesTable() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Today Sales</TableHead>
-                <TableHead>Total Sales</TableHead>
+                <TableHead>Product</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Method</TableHead>
+                <TableHead>Amount</TableHead>
                 <TableHead className="text-right">Date Time</TableHead>
               </TableRow>
             </TableHeader>
@@ -421,8 +454,10 @@ export function SalesTable() {
                 .filter((u) => selectedRows.has(u.id))
                 .map((user) => (
                   <TableRow key={user.id}>
-                    <TableCell>{user.today_sales}</TableCell>
-                    <TableCell>{user.total_sales}</TableCell>
+                    <TableCell>{user.product}</TableCell>
+                    <TableCell>{user.status}</TableCell>
+                    <TableCell>{user.method}</TableCell>
+                    <TableCell>{user.amount}</TableCell>
                     <TableCell className="text-right">
                       {new Date(user.created_at).toLocaleString()}
                     </TableCell>
@@ -458,8 +493,10 @@ export function SalesTable() {
                   aria-label="Select all"
                 />
               </TableHead>
-              <TableHead>Today Sales</TableHead>
-              <TableHead>Total Sales</TableHead>
+              <TableHead>Product</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Method</TableHead>
+              <TableHead>Amount</TableHead>
               <TableHead className="text-right">Date Time</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
@@ -467,7 +504,7 @@ export function SalesTable() {
           <TableBody>
             {filteredUsers.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center">
+                <TableCell colSpan={7} className="h-24 text-center">
                   No results.
                 </TableCell>
               </TableRow>
@@ -481,8 +518,10 @@ export function SalesTable() {
                       aria-label="Select row"
                     />
                   </TableCell>
-                  <TableCell>{user.today_sales}</TableCell>
-                  <TableCell>{user.total_sales}</TableCell>
+                  <TableCell>{user.product}</TableCell>
+                  <TableCell>{user.status}</TableCell>
+                  <TableCell>{user.method}</TableCell>
+                  <TableCell>{user.amount}</TableCell>
                   <TableCell className="text-right">
                     {new Date(user.created_at).toLocaleString()}
                   </TableCell>

@@ -22,7 +22,7 @@ export default async function DashboardPage() {
     <div className="min-h-screen bg-background dark:bg-black">
       <Header user={user} />
 
-      <main className="px-6 py-8 mt-16 space-y-16">
+      <main className="px-20 py-8 mt-16 space-y-16">
         {/* Sales Section */}
         <section>
           <SalesTable />
