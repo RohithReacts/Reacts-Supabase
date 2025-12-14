@@ -178,3 +178,135 @@ export async function updatePassword(formData: FormData) {
   revalidatePath("/", "layout");
   return { success: true, message: "Password updated successfully" };
 }
+
+export async function uploadAvatar(formData: FormData) {
+  const supabase = await createClient();
+
+  const file = formData.get("avatar") as File;
+
+  if (!file) {
+    return { error: "No file provided" };
+  }
+
+  // Validate file type
+  const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
+  if (!allowedTypes.includes(file.type)) {
+    return {
+      error: "Invalid file type. Please upload a JPG, PNG, or WebP image.",
+    };
+  }
+
+  // Validate file size (2MB max)
+  const maxSize = 2 * 1024 * 1024; // 2MB in bytes
+  if (file.size > maxSize) {
+    return { error: "File size too large. Maximum size is 2MB." };
+  }
+
+  // Get current user
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    return { error: "User not authenticated" };
+  }
+
+  // Delete old avatar if exists
+  const oldAvatarUrl = user.user_metadata?.avatar_url;
+  if (oldAvatarUrl) {
+    const oldPath = oldAvatarUrl.split("/").pop();
+    if (oldPath) {
+      await supabase.storage.from("avatars").remove([`${user.id}/${oldPath}`]);
+    }
+  }
+
+  // Generate unique filename
+  const fileExt = file.name.split(".").pop();
+  const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+
+  // Upload to Supabase Storage
+  const { error: uploadError } = await supabase.storage
+    .from("avatars")
+    .upload(fileName, file, {
+      cacheControl: "3600",
+      upsert: false,
+    });
+
+  if (uploadError) {
+    console.error("Upload error:", uploadError);
+    return { error: uploadError.message };
+  }
+
+  // Get public URL
+  const {
+    data: { publicUrl },
+  } = supabase.storage.from("avatars").getPublicUrl(fileName);
+
+  // Update user metadata
+  const { error: updateError } = await supabase.auth.updateUser({
+    data: {
+      avatar_url: publicUrl,
+    },
+  });
+
+  if (updateError) {
+    console.error("Update user metadata error:", updateError);
+    return { error: updateError.message };
+  }
+
+  revalidatePath("/", "layout");
+  return {
+    success: true,
+    message: "Avatar updated successfully",
+    avatarUrl: publicUrl,
+  };
+}
+
+export async function deleteAvatar() {
+  const supabase = await createClient();
+
+  // Get current user
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    return { error: "User not authenticated" };
+  }
+
+  // Get avatar URL from metadata
+  const avatarUrl = user.user_metadata?.avatar_url;
+  if (!avatarUrl) {
+    return { error: "No avatar to delete" };
+  }
+
+  // Extract file path from URL
+  const filePath = avatarUrl.split("/").pop();
+  if (filePath) {
+    const { error: deleteError } = await supabase.storage
+      .from("avatars")
+      .remove([`${user.id}/${filePath}`]);
+
+    if (deleteError) {
+      console.error("Delete avatar error:", deleteError);
+      return { error: deleteError.message };
+    }
+  }
+
+  // Update user metadata to remove avatar_url
+  const { error: updateError } = await supabase.auth.updateUser({
+    data: {
+      avatar_url: null,
+    },
+  });
+
+  if (updateError) {
+    console.error("Update user metadata error:", updateError);
+    return { error: updateError.message };
+  }
+
+  revalidatePath("/", "layout");
+  return { success: true, message: "Avatar removed successfully" };
+}
