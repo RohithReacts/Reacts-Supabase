@@ -27,7 +27,7 @@ export default async function Home() {
           
 
           <h1 className="text-5xl md:text-7xl font-bold tracking-tight bg-linear-to-b from-white to-white/50 bg-clip-text text-transparent">
-            Build your next idea, faster.
+            Build your next idea, faster. 
           </h1>
 
           <p className="text-lg md:text-xl text-zinc-400 max-w-2xl mx-auto">
