@@ -6,6 +6,7 @@ import "@radix-ui/themes/styles.css";
 import { Theme } from "@radix-ui/themes";
 import { Toaster } from "sonner";
 import { ToastListener } from "@/components/toast-listener";
+import { Suspense } from "react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -40,7 +41,9 @@ export default function RootLayout({
         >
           <Theme>
             <Toaster position="bottom-right" />
-            <ToastListener />
+            <Suspense fallback={null}>
+              <ToastListener />
+            </Suspense>
             {children}
           </Theme>
         </ThemeProvider>
