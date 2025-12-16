@@ -191,10 +191,11 @@ export function SalesTable() {
 
   const handleCalculate = () => {
     const selected = users.filter((u) => selectedRows.has(u.id));
-    const totalAmount = selected.reduce(
-      (sum, u) => sum + parseFloat(u.amount.replace(/,/g, "") || "0"),
-      0
-    );
+    const totalAmount = selected.reduce((sum, u) => {
+      const cleanAmount = (u.amount || "0").replace(/[^\d.]/g, "").trim();
+      const parsedAmount = parseFloat(cleanAmount);
+      return sum + (isNaN(parsedAmount) ? 0 : parsedAmount);
+    }, 0);
     setCalculationResult({ count: selected.length, totalAmount });
   };
 
@@ -424,7 +425,11 @@ export function SalesTable() {
             <div className="grid grid-cols-4 items-center gap-4">
               <Label className="text-right">Total Amount</Label>
               <div className="col-span-3 font-medium">
-                {calculationResult?.totalAmount.toFixed(2)}
+                ₹
+                {calculationResult?.totalAmount.toLocaleString("en-IN", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
               </div>
             </div>
           </div>
