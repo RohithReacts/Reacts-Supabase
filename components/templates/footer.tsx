@@ -25,21 +25,9 @@ interface ThemeOption {
 /* -------------------------------------------------------------------------- */
 
 const THEMES_OPTIONS: ThemeOption[] = [
-  {
-    label: 'Light',
-    id: 'light',
-    icon: <SunIcon className="h-4 w-4" />,
-  },
-  {
-    label: 'Dark',
-    id: 'dark',
-    icon: <MoonIcon className="h-4 w-4" />,
-  },
-  {
-    label: 'System',
-    id: 'system',
-    icon: <MonitorIcon className="h-4 w-4" />,
-  },
+  { label: 'Light', id: 'light', icon: <SunIcon className="h-4 w-4" /> },
+  { label: 'Dark', id: 'dark', icon: <MoonIcon className="h-4 w-4" /> },
+  { label: 'System', id: 'system', icon: <MonitorIcon className="h-4 w-4" /> },
 ]
 
 /* -------------------------------------------------------------------------- */
@@ -50,30 +38,16 @@ function ThemeSwitch(): React.JSX.Element | null {
   const [mounted, setMounted] = useState(false)
   const { theme, setTheme } = useTheme()
 
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
+  useEffect(() => setMounted(true), [])
   if (!mounted) return null
-
-  const handleThemeChange = (id: string | null) => {
-    if (!id) return
-    if (id === 'light' || id === 'dark' || id === 'system') {
-      setTheme(id)
-    }
-  }
 
   return (
     <AnimatedBackground
-      className="pointer-events-none rounded-lg bg-zinc-100 dark:bg-zinc-800"
+      className="pointer-events-none rounded-lg bg-zinc-100 p-1 dark:bg-zinc-800"
       defaultValue={theme}
-      transition={{
-        type: 'spring',
-        bounce: 0,
-        duration: 0.2,
-      }}
+      transition={{ type: 'spring', bounce: 0, duration: 0.2 }}
       enableHover={false}
-      onValueChange={handleThemeChange}
+      onValueChange={(id) => setTheme(id as ThemeId)}
     >
       {THEMES_OPTIONS.map((option) => (
         <button
@@ -81,7 +55,12 @@ function ThemeSwitch(): React.JSX.Element | null {
           type="button"
           aria-label={`Switch to ${option.label} theme`}
           data-id={option.id}
-          className="inline-flex h-7 w-7 items-center justify-center text-zinc-500 transition-colors duration-100 focus-visible:outline-2 data-[checked=true]:text-zinc-950 dark:text-zinc-400 dark:data-[checked=true]:text-zinc-50"
+          className="
+            inline-flex h-8 w-8 items-center justify-center
+            rounded-md text-zinc-500 transition
+            data-[checked=true]:text-zinc-950
+            dark:text-zinc-400 dark:data-[checked=true]:text-zinc-50
+          "
         >
           {option.icon}
         </button>
@@ -96,16 +75,30 @@ function ThemeSwitch(): React.JSX.Element | null {
 
 export function Footer(): React.JSX.Element {
   return (
-    <footer className="mt-7 px-0 py-4 ">
-      <div className="flex items-center justify-between">
-        <Link href="/" target="_blank" rel="noreferrer">
-          <TextLoop className="text-sm ml-25 font-sans text-zinc-500">
-            <span>Built with Nextjs and Motion-Primitives.</span>
-            <span>© 2025 Rohithreacts.dev All rights reserved.</span>
+    <footer className="mt-8 border-t border-zinc-200 py-4 dark:border-zinc-900">
+      <div
+        className="
+          container mx-auto
+          flex flex-col gap-4
+          px-4
+          sm:flex-row sm:items-center sm:justify-between
+        "
+      >
+        {/* Text */}
+        <Link
+          href="/"
+          target="_blank"
+          rel="noreferrer"
+          className="text-center sm:text-left"
+        >
+          <TextLoop className="text-xs sm:text-sm font-sans text-zinc-500">
+            <span>Built with Next.js and Motion-Primitives.</span>
+            <span>© 2025 Rohithreacts.dev · All rights reserved.</span>
           </TextLoop>
         </Link>
 
-        <div className="text-xs text-zinc-400 mr-25">
+        {/* Theme Switch */}
+        <div className="flex justify-center sm:justify-end">
           <ThemeSwitch />
         </div>
       </div>

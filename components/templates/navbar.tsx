@@ -188,7 +188,7 @@ export function Navbar({ user }: NavbarProps): React.JSX.Element {
                     href={item.href}
                     onClick={() => setIsOpen(false)}
                     className={`
-                      block py-2
+                      block py-2 mt-5
                       ${
                         activeSection === item.href
                           ? "font-medium"
@@ -204,7 +204,7 @@ export function Navbar({ user }: NavbarProps): React.JSX.Element {
               <form action={signout}>
                 <Button
                   variant="outline"
-                  className="mt-3 w-full"
+                  className="mt-3 cursor-pointer"
                   onClick={() => setIsOpen(false)}
                 >
                   Sign Out
