@@ -1,11 +1,13 @@
+import Image from "next/image";
+import Link from "next/link";
+import { Metadata } from "next";
+
 import { Card, CardContent } from "@/components/ui/card";
-import { login } from "../auth/actions";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { Metadata } from "next";
+import { login } from "../auth/actions";
 
 export const metadata: Metadata = {
   title: "Reacts Login",
@@ -14,73 +16,90 @@ export const metadata: Metadata = {
 
 export default async function LoginPage() {
   return (
-    <div className="relative min-h-screen bg-[radial-gradient(60%_80%_at_50%_0%,#0b1220_0%,#0a0a0b_60%,#060607_100%)] text-zinc-100">
-
-      
+    <section className="relative min-h-screen text-zinc-100">
+      <div className="absolute inset-0 bg-[radial-gradient(60%_80%_at_50%_0%,#0b1220_0%,#0a0a0b_60%,#060607_100%)]" />
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,rgba(255,255,255,0.04),transparent_20%),linear-gradient(to_right,rgba(255,255,255,0.03),transparent_20%)] mask-[radial-gradient(ellipse_at_center,black_60%,transparent_100%)]" />
 
-      <div className="relative mx-auto flex min-h-screen max-w-7xl items-center justify-center p-4">
+      <div className="relative mx-auto flex min-h-screen max-w-7xl items-center px-4">
+        <div className="grid w-full grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="hidden lg:flex flex-col items-center text-center space-y-6">
+            <Image
+              src="/Adobe Express - file.png"
+              alt="Login Side Illustration"
+              width={420}
+              height={320}
+              className="object-contain w-full max-w-md"
+            />
 
-        <Card className="w-full max-w-md border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_10px_50px_rgba(0,0,0,0.45)] text-zinc-100">
+            <h1 className="text-4xl sm:text-5xl font-bold">Reacts Sales</h1>
 
-          <CardContent className="pt-6 space-y-4">
-            <form className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-zinc-300">
-                  Email
-                </Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  placeholder="you@domain.com"
-                  className="bg-zinc-900/70 border-white/10 text-zinc-100 placeholder:text-zinc-500"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="password" className="text-zinc-300">
-                    Password
-                  </Label>
-                  <a
-                    href="/forgot-password"
-                    className="text-xs text-zinc-100 hover:text-blue-300"
-                  >
-                    Forgot password?
-                  </a>
-                </div>
-
-                <PasswordInput
-                  id="password"
-                  name="password"
-                  autoComplete="current-password"
-                  placeholder="••••••••"
-                  className="bg-zinc-900/70 border-white/10 text-zinc-100 placeholder:text-zinc-500"
-                />
-              </div>
-
-              <Button
-                formAction={login}
-                className="w-full bg-blue-600 cursor-pointer hover:bg-blue-700 text-white"
-              >
-                Sign in
-              </Button>
-            </form>
-
-            <p className="mt-4 mx-auto text-center text-sm text-zinc-400">
-              Don't have an account?{" "}
-              <Link
-                href="/signup"
-                className="font-medium text-zinc-100 hover:text-blue-300"
-              >
-                Create account
-              </Link>
+            <p className="text-zinc-400 sm:text-lg max-w-md mx-auto">
+              Sign in to continue your journey.
             </p>
-          </CardContent>
-        </Card>
+          </div>
+
+          <div className="flex justify-center">
+            <Card className="w-full max-w-md border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_10px_50px_rgba(0,0,0,0.45)]">
+              <CardContent className="pt-6 space-y-4">
+                <form className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="email" className="text-zinc-300">
+                      Email
+                    </Label>
+                    <Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      autoComplete="email"
+                      placeholder="you@domain.com"
+                      className="bg-zinc-900/70 border-white/10 text-zinc-100 placeholder:text-zinc-500"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="password" className="text-zinc-300">
+                        Password
+                      </Label>
+                      <Link
+                        href="/forgot-password"
+                        className="text-xs hover:text-blue-300"
+                      >
+                        Forgot password?
+                      </Link>
+                    </div>
+
+                    <PasswordInput
+                      id="password"
+                      name="password"
+                      autoComplete="current-password"
+                      placeholder="••••••••"
+                      className="bg-zinc-900/70 border-white/10 text-zinc-100 placeholder:text-zinc-500"
+                    />
+                  </div>
+
+                  <Button
+                    formAction={login}
+                    className="w-full cursor-pointer"
+                  >
+                    Sign in
+                  </Button>
+                </form>
+
+                <p className="text-center text-sm text-zinc-400">
+                  Don&apos;t have an account?{" "}
+                  <Link
+                    href="/signup"
+                    className="font-medium text-zinc-100 hover:text-blue-300"
+                  >
+                    Create account
+                  </Link>
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </div>
-    </div>
+    </section>
   );
 }

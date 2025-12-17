@@ -9,7 +9,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -23,7 +22,7 @@ import {
   deleteAvatar,
 } from "@/app/auth/actions";
 import { toast } from "sonner";
-import { Upload, X, Loader2 } from "lucide-react";
+import { Upload, Loader2 } from "lucide-react";
 
 interface SettingsDialogProps {
   user: User;
@@ -38,15 +37,15 @@ export function SettingsDialog({
 }: SettingsDialogProps) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
 
   const handleProfileUpdate = async (formData: FormData) => {
     const result = await updateProfile(formData);
-    if (result?.error) {
-      toast.error(result.error);
-    } else if (result?.success) {
+    if (result?.error) toast.error(result.error);
+    else {
       toast.success(result.message);
       onOpenChange(false);
       router.refresh();
@@ -55,9 +54,8 @@ export function SettingsDialog({
 
   const handlePasswordUpdate = async (formData: FormData) => {
     const result = await updatePassword(formData);
-    if (result?.error) {
-      toast.error(result.error);
-    } else if (result?.success) {
+    if (result?.error) toast.error(result.error);
+    else {
       toast.success(result.message);
       onOpenChange(false);
       router.refresh();
@@ -75,7 +73,7 @@ export function SettingsDialog({
     if (result?.error) {
       toast.error(result.error);
       setAvatarPreview(null);
-    } else if (result?.success) {
+    } else {
       toast.success(result.message);
       setAvatarPreview(null);
       router.refresh();
@@ -84,178 +82,167 @@ export function SettingsDialog({
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setAvatarPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-      handleAvatarUpload(file);
-    }
-  };
+    if (!file) return;
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(false);
-    const file = e.dataTransfer.files?.[0];
-    if (file && file.type.startsWith("image/")) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setAvatarPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-      handleAvatarUpload(file);
-    } else {
-      toast.error("Please drop an image file");
-    }
-  };
+    const reader = new FileReader();
+    reader.onloadend = () => setAvatarPreview(reader.result as string);
+    reader.readAsDataURL(file);
 
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = () => {
-    setIsDragging(false);
-  };
-
-  const handleDeleteAvatar = async () => {
-    const result = await deleteAvatar();
-    if (result?.error) {
-      toast.error(result.error);
-    } else if (result?.success) {
-      toast.success(result.message);
-      router.refresh();
-    }
+    handleAvatarUpload(file);
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px] dark:bg-black">
-        <DialogHeader>
-          <DialogTitle>Account Settings</DialogTitle>
-          <DialogDescription>
+      <DialogContent
+        className="
+          w-[95vw]
+          max-w-[95vw]
+          sm:max-w-md
+          md:max-w-lg
+          lg:max-w-md
+          max-h-[90vh]
+          overflow-y-auto
+          p-4 sm:p-6
+          dark:bg-black
+        "
+      >
+        <DialogHeader className="space-y-1">
+          <DialogTitle className="text-lg sm:text-xl">
+            Account Settings
+          </DialogTitle>
+          <DialogDescription className="text-sm">
             Manage your account settings and preferences.
           </DialogDescription>
         </DialogHeader>
-        <Tabs defaultValue="profile" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="profile">Profile</TabsTrigger>
-            <TabsTrigger value="security">Security</TabsTrigger>
+
+        <Tabs defaultValue="profile" className="w-full mt-4">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger className="cursor-pointer" value="profile">Profile</TabsTrigger>
+            <TabsTrigger className="cursor-pointer" value="avatar">Avatar</TabsTrigger>
+            <TabsTrigger className="cursor-pointer" value="security">Security</TabsTrigger>
           </TabsList>
+
+          {/* ---------------- Profile Tab ---------------- */}
           <TabsContent value="profile">
-            <div className="space-y-6 py-4">
-              {/* Avatar Section */}
-              <div className="space-y-4">
+            <form action={handleProfileUpdate} className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="fullName">Full Name</Label>
+                <Input
+                  id="fullName"
+                  name="fullName"
+                  defaultValue={user.user_metadata.full_name || ""}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  defaultValue={user.email || ""}
+                />
+              </div>
+
+              <Button type="submit" className="w-full sm:w-fit">
+                Save Changes
+              </Button>
+            </form>
+          </TabsContent>
+
+          {/* ---------------- Avatar Tab ---------------- */}
+          <TabsContent value="avatar">
+            <div className="space-y-4 py-4">
+              <div className="space-y-3">
                 <Label>Profile Picture</Label>
-                <div className="flex items-center gap-4">
-                  <Avatar className="h-20 w-20 border border-gray-200 dark:border-gray-700">
+
+                <div className="flex flex-col sm:flex-row gap-4 sm:items-center">
+                  <Avatar className="h-20 w-20 border rounded-md mx-auto sm:mx-0">
                     <AvatarImage
                       src={avatarPreview || user?.user_metadata?.avatar_url}
-                      alt="Profile picture"
                     />
-                    <AvatarFallback className="text-2xl">
+                    <AvatarFallback className="text-xl">
                       {user?.email?.[0]?.toUpperCase() ?? "U"}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="flex-1">
+
+                  <div className="w-full">
                     <div
-                      onDrop={handleDrop}
-                      onDragOver={handleDragOver}
-                      onDragLeave={handleDragLeave}
-                      className={`
-                        border-2 border-dashed rounded-lg p-4 text-center cursor-pointer
-                        transition-colors
+                      onClick={() => fileInputRef.current?.click()}
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        setIsDragging(true);
+                      }}
+                      onDragLeave={() => setIsDragging(false)}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        setIsDragging(false);
+                        const file = e.dataTransfer.files?.[0];
+                        if (file) handleAvatarUpload(file);
+                      }}
+                      className={`rounded-lg border-2 border-dashed p-4 text-center cursor-pointer transition
                         ${
                           isDragging
                             ? "border-blue-500 bg-blue-50 dark:bg-blue-950"
-                            : "border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-600"
-                        }
-                      `}
-                      onClick={() => fileInputRef.current?.click()}
+                            : "border-gray-300 hover:border-gray-400 dark:border-gray-700"
+                        }`}
                     >
                       <input
                         ref={fileInputRef}
                         type="file"
-                        accept="image/jpeg,image/png,image/webp,image/jpg"
+                        accept="image/*"
                         onChange={handleFileChange}
                         className="hidden"
-                        disabled={isUploading}
                       />
+
                       {isUploading ? (
-                        <div className="flex items-center justify-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                        <div className="flex justify-center gap-2 text-sm">
                           <Loader2 className="h-4 w-4 animate-spin" />
-                          <span>Uploading...</span>
+                          Uploading...
                         </div>
                       ) : (
-                        <div className="space-y-1">
-                          <Upload className="h-6 w-6 mx-auto text-gray-400" />
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
-                            Click to upload or drag and drop
+                        <>
+                          <Upload className="mx-auto h-6 w-6 text-gray-400" />
+                          <p className="text-sm text-muted-foreground">
+                            Tap or drag image to upload
                           </p>
-                          <p className="text-xs text-gray-500 dark:text-gray-500">
-                            JPG, PNG or WebP (max 2MB)
-                          </p>
-                        </div>
+                        </>
                       )}
                     </div>
                   </div>
                 </div>
+
                 {user?.user_metadata?.avatar_url && (
                   <Button
                     type="button"
-                    variant="outline"
+                    variant="destructive"
                     size="sm"
-                    onClick={handleDeleteAvatar}
-                    className="text-red-600 hover:text-red-700 dark:text-red-400"
+                    className="w-full cursor-pointer sm:w-fit"
+                    onClick={deleteAvatar}
                   >
-                    <X className="h-4 w-4 mr-1" />
                     Remove Avatar
                   </Button>
                 )}
               </div>
-
-              {/* Profile Form */}
-              <form action={handleProfileUpdate} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="fullName">Full Name</Label>
-                  <Input
-                    id="fullName"
-                    name="fullName"
-                    defaultValue={user.user_metadata.full_name || ""}
-                    placeholder="John Doe"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    defaultValue={user.email || ""}
-                    placeholder="john@example.com"
-                  />
-                </div>
-                <Button type="submit">Save Changes</Button>
-              </form>
             </div>
           </TabsContent>
+
+          {/* ---------------- Security Tab ---------------- */}
           <TabsContent value="security">
             <form action={handlePasswordUpdate} className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="password">New Password</Label>
-                <Input id="password" name="password" type="password" required />
+                <Label>New Password</Label>
+                <Input name="password" type="password" required />
               </div>
+
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirm Password</Label>
-                <Input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type="password"
-                  required
-                />
+                <Label>Confirm Password</Label>
+                <Input name="confirmPassword" type="password" required />
               </div>
-              <Button type="submit">Update Password</Button>
+
+              <Button type="submit" className="w-full sm:w-fit">
+                Update Password
+              </Button>
             </form>
           </TabsContent>
         </Tabs>

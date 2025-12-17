@@ -28,6 +28,15 @@ import { Label } from "@/components/ui/label";
 import { Pencil, Trash2, Search } from "lucide-react";
 import { toast } from "sonner";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface SaleUser {
   id: string;
@@ -211,7 +220,15 @@ export function SalesTable() {
       user.status,
       user.method,
       user.amount,
-      new Date(user.created_at).toLocaleString(),
+      new Date(user.created_at).toLocaleString("en-IN", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false,
+      }),
     ]);
 
     autoTable(doc, {
@@ -231,7 +248,15 @@ export function SalesTable() {
       Status: user.status,
       Method: user.method,
       Amount: user.amount,
-      "Date Time": new Date(user.created_at).toLocaleString(),
+      "Date Time": new Date(user.created_at).toLocaleString("en-IN", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false,
+      }),
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(tableData);
@@ -251,7 +276,15 @@ export function SalesTable() {
       user.method.toLowerCase().includes(searchLower) ||
       user.amount.toLowerCase().includes(searchLower) ||
       new Date(user.created_at)
-        .toLocaleString()
+        .toLocaleString("en-IN", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: false,
+        })
         .toLowerCase()
         .includes(searchLower)
     );
@@ -330,14 +363,24 @@ export function SalesTable() {
                   <Label htmlFor="status" className="text-right">
                     Status
                   </Label>
-                  <Input
-                    id="status"
-                    name="status"
+                  <Select
                     value={formData.status}
-                    onChange={handleInputChange}
-                    className="col-span-2"
-                    required
-                  />
+                    onValueChange={(value) =>
+                      setFormData((prev) => ({ ...prev, status: value }))
+                    }
+                  >
+                    <SelectTrigger className="col-span-2">
+                      <SelectValue placeholder="Select Payment Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectLabel>Status</SelectLabel>
+                        <SelectItem value="Pending">Pending</SelectItem>
+                        <SelectItem value="Paid">Paid</SelectItem>
+                        <SelectItem value="UnPaid">UnPaid</SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="method" className="text-right">
@@ -464,7 +507,15 @@ export function SalesTable() {
                     <TableCell>{user.method}</TableCell>
                     <TableCell>{user.amount}</TableCell>
                     <TableCell className="text-right">
-                      {new Date(user.created_at).toLocaleString()}
+                      {new Date(user.created_at).toLocaleString("en-IN", {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        second: "2-digit",
+                        hour12: false,
+                      })}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -528,7 +579,15 @@ export function SalesTable() {
                   <TableCell>{user.method}</TableCell>
                   <TableCell>{user.amount}</TableCell>
                   <TableCell className="text-right">
-                    {new Date(user.created_at).toLocaleString()}
+                    {new Date(user.created_at).toLocaleString("en-IN", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      second: "2-digit",
+                      hour12: false,
+                    })}
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
