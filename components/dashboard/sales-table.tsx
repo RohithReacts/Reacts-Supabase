@@ -377,8 +377,8 @@ export function SalesTable() {
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="flex flex-wrap items-center gap-4">
           <h2 className="text-xl font-sans tracking-wider">Sales Reports</h2>
           {selectedRows.size > 0 && (
             <div className="flex gap-2">
@@ -420,132 +420,136 @@ export function SalesTable() {
             </div>
           )}
         </div>
-        <Dialog open={open} onOpenChange={handleOpenChange}>
-          <DialogTrigger asChild>
-            <Button className="cursor-pointer">Add New User</Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px] dark:bg-black">
-            <DialogHeader>
-              <DialogTitle>
-                {editingId ? "Edit Sale" : "Add New User"}
-              </DialogTitle>
-              <DialogDescription>
-                {editingId
-                  ? "Edit the sales details below."
-                  : "Enter the sales details for the new user here, or import from CSV."}{" "}
-                Click save when you're done.
-              </DialogDescription>
-            </DialogHeader>
-            <form onSubmit={handleSubmit}>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="product" className="text-right">
-                    Product
-                  </Label>
-                  <Input
-                    id="product"
-                    name="product"
-                    value={formData.product}
-                    onChange={handleInputChange}
-                    className="col-span-2"
-                    required
-                  />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="status" className="text-right">
-                    Status
-                  </Label>
-                  <Select
-                    value={formData.status}
-                    onValueChange={(value) =>
-                      setFormData((prev) => ({ ...prev, status: value }))
-                    }
-                  >
-                    <SelectTrigger className="col-span-2">
-                      <SelectValue placeholder="Select a Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectLabel>Payment Status</SelectLabel>
-                        <SelectItem value="Pending">Pending</SelectItem>
-                        <SelectItem value="Paid">Paid</SelectItem>
-                        <SelectItem value="UnPaid">UnPaid</SelectItem>
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="method" className="text-right">
-                    Method
-                  </Label>
-                  <Select
-                    value={formData.method}
-                    onValueChange={(value) =>
-                      setFormData((prev) => ({ ...prev, method: value }))
-                    }
-                  >
-                    <SelectTrigger className="col-span-2">
-                      <SelectValue placeholder="Select a Method" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectLabel>Payment Method</SelectLabel>
-                        <SelectItem value="G Pay">G Pay</SelectItem>
-                        <SelectItem value="UPI">UPI</SelectItem>
-                        <SelectItem value="EMI">EMI</SelectItem>
-                        <SelectItem value="Credit Card">Credit Card</SelectItem>
-                        <SelectItem value="PhonePe">PhonePe</SelectItem>
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="amount" className="text-right">
-                    Amount
-                  </Label>
-                  <Input
-                    id="amount"
-                    name="amount"
-                    value={formData.amount}
-                    onChange={handleInputChange}
-                    className="col-span-2"
-                    required
-                  />
-                </div>
-              </div>
-              <DialogFooter className="flex-col sm:flex-row gap-2">
-                {!editingId && (
-                  <>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept=".csv"
-                      onChange={handleCSVImport}
-                      className="hidden"
-                      id="csv-upload"
+        <div className="flex flex-wrap gap-2 w-full md:w-auto">
+          <Dialog open={open} onOpenChange={handleOpenChange}>
+            <DialogTrigger asChild>
+              <Button className="cursor-pointer">Add New User</Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px] dark:bg-black">
+              <DialogHeader>
+                <DialogTitle>
+                  {editingId ? "Edit Sale" : "Add New User"}
+                </DialogTitle>
+                <DialogDescription>
+                  {editingId
+                    ? "Edit the sales details below."
+                    : "Enter the sales details for the new user here, or import from CSV."}{" "}
+                  Click save when you're done.
+                </DialogDescription>
+              </DialogHeader>
+              <form onSubmit={handleSubmit}>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="product" className="text-right">
+                      Product
+                    </Label>
+                    <Input
+                      id="product"
+                      name="product"
+                      value={formData.product}
+                      onChange={handleInputChange}
+                      className="col-span-2"
+                      required
                     />
-                    <Button
-                      className="cursor-pointer mr-30"
-                      type="button"
-                      variant="outline"
-                      onClick={() => fileInputRef.current?.click()}
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="status" className="text-right">
+                      Status
+                    </Label>
+                    <Select
+                      value={formData.status}
+                      onValueChange={(value) =>
+                        setFormData((prev) => ({ ...prev, status: value }))
+                      }
                     >
-                      <Upload className="h-4 w-4 mr-2" />
-                      Import CSV
-                    </Button>
-                  </>
-                )}
-                <Button
-                  className="cursor-pointer"
-                  type="submit"
-                  disabled={loading}
-                >
-                  {loading ? "Saving..." : "Save changes"}
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
+                      <SelectTrigger className="col-span-2">
+                        <SelectValue placeholder="Select a Status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel>Payment Status</SelectLabel>
+                          <SelectItem value="Pending">Pending</SelectItem>
+                          <SelectItem value="Paid">Paid</SelectItem>
+                          <SelectItem value="UnPaid">UnPaid</SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="method" className="text-right">
+                      Method
+                    </Label>
+                    <Select
+                      value={formData.method}
+                      onValueChange={(value) =>
+                        setFormData((prev) => ({ ...prev, method: value }))
+                      }
+                    >
+                      <SelectTrigger className="col-span-2">
+                        <SelectValue placeholder="Select a Method" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel>Payment Method</SelectLabel>
+                          <SelectItem value="G Pay">G Pay</SelectItem>
+                          <SelectItem value="UPI">UPI</SelectItem>
+                          <SelectItem value="EMI">EMI</SelectItem>
+                          <SelectItem value="Credit Card">
+                            Credit Card
+                          </SelectItem>
+                          <SelectItem value="PhonePe">PhonePe</SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="amount" className="text-right">
+                      Amount
+                    </Label>
+                    <Input
+                      id="amount"
+                      name="amount"
+                      value={formData.amount}
+                      onChange={handleInputChange}
+                      className="col-span-2"
+                      required
+                    />
+                  </div>
+                </div>
+                <DialogFooter className="flex-col sm:flex-row gap-2">
+                  {!editingId && (
+                    <>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept=".csv"
+                        onChange={handleCSVImport}
+                        className="hidden"
+                        id="csv-upload"
+                      />
+                      <Button
+                        className="cursor-pointer mr-30"
+                        type="button"
+                        variant="outline"
+                        onClick={() => fileInputRef.current?.click()}
+                      >
+                        <Upload className="h-4 w-4 mr-2" />
+                        Import CSV
+                      </Button>
+                    </>
+                  )}
+                  <Button
+                    className="cursor-pointer"
+                    type="submit"
+                    disabled={loading}
+                  >
+                    {loading ? "Saving..." : "Save changes"}
+                  </Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
 
         <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
           <DialogContent className="h-[200px] w-full sm:w-[425px] dark:bg-black">

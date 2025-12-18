@@ -22,7 +22,7 @@ export default async function LoginPage() {
 
       <div className="relative mx-auto flex min-h-screen max-w-7xl items-center px-4">
         <div className="grid w-full grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div className="hidden lg:flex flex-col items-center text-center space-y-6">
+          <div className="flex flex-col items-center text-center space-y-6">
             <Image
               src="/Adobe Express - file.png"
               alt="Login Side Illustration"

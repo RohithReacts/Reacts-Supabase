@@ -3,8 +3,6 @@ import { Magnetic } from "@/components/motion-primitives/magnetic";
 import { Mail, MapIcon, Phone } from "lucide-react";
 import Link from "next/link";
 
-
-
 type SocialLink = {
   label: string;
   link: string;
@@ -37,7 +35,7 @@ const Connect: React.FC = () => {
   return (
     <section
       id="connect"
-      className="grid grid-cols-1 mx-15 md:grid-cols-2 items-center gap-8"
+      className="w-full max-w-4xl mr-auto  px-4 sm:px-6 grid grid-cols-1 md:grid-cols-2 items-center gap-8"
     >
       <div>
         <h3 className="mb-5 text-lg font-medium">Connect</h3>
@@ -84,7 +82,6 @@ const Connect: React.FC = () => {
           ))}
         </div>
       </div>
-
     </section>
   );
 };

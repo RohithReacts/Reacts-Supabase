@@ -1,9 +1,6 @@
 import { Laptop, ShieldCheck, Smartphone, User } from "lucide-react";
 import { ReactElement } from "react";
 
-
-
-
 interface Service {
   icon: ReactElement;
   title: string;
@@ -15,40 +12,36 @@ export default function AboutPage() {
     {
       icon: <Laptop className="w-8 h-8 text-primary" />,
       title: "Real-Time Insights",
-      description:
-        "Monitor key sales metrics instantly with live data sync.",
+      description: "Monitor key sales metrics instantly with live data sync.",
     },
     {
       icon: <Smartphone className="w-8 h-8 text-primary" />,
       title: "Smart Analytics",
-      description:
-        "AI-driven analysis to identify trends and opportunities.",
+      description: "AI-driven analysis to identify trends and opportunities.",
     },
     {
       icon: <User className="w-8 h-8 text-primary" />,
       title: "Team Collaboration",
-      description:
-        "Make decision-making faster with shared dashboards.",
+      description: "Make decision-making faster with shared dashboards.",
     },
     {
-    icon: <ShieldCheck className="w-8 h-8 text-primary" />,
-    title: "Secure & Reliable",
-    description:
-      "Enterprise-grade security with role-based access and data protection.",
-  },
-   
+      icon: <ShieldCheck className="w-8 h-8 text-primary" />,
+      title: "Secure & Reliable",
+      description:
+        "Enterprise-grade security with role-based access and data protection.",
+    },
   ];
 
   return (
-    <section id="about" className="w-full py-16 px-6">
+    <section id="about" className="w-full py-16 px-4 sm:px-6 md:px-8">
       {/* Heading */}
       <div className="text-center max-w-2xl mx-auto">
         <h2 className="text-2xl md:text-3xl font-semibold text-gray-800 dark:text-gray-100">
           A powerful platform
-          <span className="font-bold text-gray-900 dark:text-white">built for performance,</span>{" "}
+          <span className="font-bold text-gray-900 dark:text-white">
+            built for performance,
+          </span>{" "}
           analytics, and growth.
-          
-        
         </h2>
         <div className="relative inline-block mt-6">
           <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-white dark:bg-gray-900 px-3 py-1 rounded-full shadow text-sm font-medium text-gray-600 dark:text-gray-400">
@@ -87,7 +80,6 @@ export default function AboutPage() {
           </div>
         ))}
       </div>
-     
     </section>
   );
 }
