@@ -1,7 +1,5 @@
-import {
-  Card,
-  CardContent,
-} from "@/components/ui/card";
+import Image from "next/image";
+import { Card, CardContent } from "@/components/ui/card";
 import { signup } from "../auth/actions";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
@@ -15,79 +13,94 @@ export const metadata: Metadata = {
 };
 
 export default async function SignupPage() {
-  
   return (
-    <div className="relative min-h-screen bg-[radial-gradient(60%_80%_at_50%_0%,#0b1220_0%,#0a0a0b_60%,#060607_100%)] text-zinc-100">
-      
+    <section className="relative min-h-screen text-zinc-100">
+      {/* Background */}
+      <div className="absolute inset-0 bg-[radial-gradient(60%_80%_at_50%_0%,#0b1220_0%,#0a0a0b_60%,#060607_100%)]" />
       <div
         className="pointer-events-none absolute inset-0 
         bg-[linear-gradient(to_bottom,rgba(255,255,255,0.04),transparent_20%),linear-gradient(to_right,rgba(255,255,255,0.03),transparent_20%)]
         mask-[radial-gradient(ellipse_at_center,black_60%,transparent_100%)]"
       />
 
-      <div className="relative mx-auto flex min-h-screen max-w-7xl items-center justify-center p-4">
-    
-        <Card className="w-full max-w-md border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_10px_50px_rgba(0,0,0,0.45)] text-zinc-100">
-          
+      {/* Main Layout */}
+      <div className="relative mx-auto flex min-h-screen max-w-7xl items-center justify-center px-4">
+        <div className="flex w-full flex-col-reverse gap-12 lg:flex-row lg:gap-20 items-center">
+          {/* LEFT — Signup Card */}
+          <div className="w-full lg:w-1/2 flex justify-center">
+            <Card className="w-full max-w-md border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_10px_50px_rgba(0,0,0,0.45)]">
+              <CardContent className="pt-6">
+                <form action={signup} className="space-y-4">
+                  <div className="flex flex-col gap-2">
+                    <label className="text-sm text-zinc-300">Name</label>
+                    <Input
+                      name="name"
+                      type="text"
+                      placeholder="John Doe"
+                      className="bg-zinc-900/70 ring-1 ring-white/10 placeholder:text-zinc-500 focus:ring-blue-500/60"
+                    />
+                  </div>
 
-          <CardContent className="pt-6">
-            <form action={signup} className="space-y-4">
-              
-              <div className="flex flex-col gap-2">
-                <label className="text-sm text-zinc-300">Name</label>
-                <Input
-                  name="name"
-                  type="text"
-                  
-                  placeholder="John Doe"
-                  className="bg-zinc-900/70 text-zinc-100 ring-1 ring-white/10 placeholder:text-zinc-500 focus:ring-blue-500/60"
-                />
-              </div>
+                  <div className="flex flex-col gap-2">
+                    <label className="text-sm text-zinc-300">Email</label>
+                    <Input
+                      name="email"
+                      type="email"
+                      placeholder="you@domain.com"
+                      className="bg-zinc-900/70 ring-1 ring-white/10 placeholder:text-zinc-500 focus:ring-blue-500/60"
+                    />
+                  </div>
 
-              
-              <div className="flex flex-col gap-2">
-                <label className="text-sm text-zinc-300">Email</label>
-                <Input
-                  name="email"
-                  type="email"
-                  
-                  placeholder="you@domain.com"
-                  className="bg-zinc-900/70 text-zinc-100 ring-1 ring-white/10 placeholder:text-zinc-500 focus:ring-blue-500/60"
-                />
-              </div>
+                  <div className="flex flex-col gap-2">
+                    <label className="text-sm text-zinc-300">Password</label>
+                    <PasswordInput
+                      name="password"
+                      placeholder="Create a strong password"
+                      className="bg-zinc-900/70 ring-1 ring-white/10 placeholder:text-zinc-500 focus:ring-blue-500/60"
+                    />
+                  </div>
 
-              
-              <div className="flex flex-col gap-2">
-                <label className="text-sm text-zinc-300">Password</label>
-                <PasswordInput
-                  name="password"
-                  
-                  placeholder="Create a strong password"
-                  className="bg-zinc-900/70 text-zinc-100 ring-1 ring-white/10 placeholder:text-zinc-500 focus:ring-blue-500/60"
-                />
-              </div>
+                  <Button type="submit" className="w-full">
+                    Create account
+                  </Button>
 
-            
-              <Button type="submit" className="w-full cursor-pointer">
-                Create account
-              </Button>
+                  <div className="flex items-center justify-between pt-2">
+                    <p className="text-sm text-zinc-400">
+                      Already have an account?
+                    </p>
+                    <Link
+                      href="/login"
+                      className="text-sm font-medium hover:text-blue-300 transition"
+                    >
+                      Sign in
+                    </Link>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+          </div>
 
-          
-              <div className="flex items-center justify-between pt-2">
-                <p className="text-sm text-zinc-400">
-                  Already have an account?
-                </p>
-                <Link
-                  href="/login"
-                  className="text-sm font-medium text-zinc-100 hover:text-blue-300 transition"
-                >
-                  Sign in
-                </Link>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
+          {/* RIGHT — Image + Text */}
+          <div className="w-full lg:w-1/2 flex flex-col items-center text-center px-4">
+            <Image
+              src="/Adobe Express - file.png"
+              alt="Signup Illustration"
+              width={420}
+              height={320}
+              className="object-contain w-full max-w-xs sm:max-w-sm md:max-w-md mb-6"
+            />
+
+            <h1 className="text-4xl sm:text-5xl font-bold mb-4">
+              Meet the Team
+            </h1>
+
+            <p className="text-muted-foreground sm:text-lg max-w-md">
+              A diverse group of professionals collaborating to build modern,
+              user-friendly digital experiences.
+            </p>
+          </div>
+        </div>
       </div>
-    </div>
+    </section>
   );
 }

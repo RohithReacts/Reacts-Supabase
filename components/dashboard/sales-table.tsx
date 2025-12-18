@@ -370,11 +370,11 @@ export function SalesTable() {
                     }
                   >
                     <SelectTrigger className="col-span-2">
-                      <SelectValue placeholder="Select Payment Status" />
+                      <SelectValue placeholder="Select a Status" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectGroup>
-                        <SelectLabel>Status</SelectLabel>
+                        <SelectLabel>Payment Status</SelectLabel>
                         <SelectItem value="Pending">Pending</SelectItem>
                         <SelectItem value="Paid">Paid</SelectItem>
                         <SelectItem value="UnPaid">UnPaid</SelectItem>
@@ -386,14 +386,26 @@ export function SalesTable() {
                   <Label htmlFor="method" className="text-right">
                     Method
                   </Label>
-                  <Input
-                    id="method"
-                    name="method"
+                  <Select
                     value={formData.method}
-                    onChange={handleInputChange}
-                    className="col-span-2"
-                    required
-                  />
+                    onValueChange={(value) =>
+                      setFormData((prev) => ({ ...prev, method: value }))
+                    }
+                  >
+                    <SelectTrigger className="col-span-2">
+                      <SelectValue placeholder="Select a Method" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectLabel>Payment Method</SelectLabel>
+                        <SelectItem value="G Pay">G Pay</SelectItem>
+                        <SelectItem value="UPI">UPI</SelectItem>
+                        <SelectItem value="EMI">EMI</SelectItem>
+                        <SelectItem value="Credit Card">Credit Card</SelectItem>
+                        <SelectItem value="PhonePe">PhonePe</SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="amount" className="text-right">
