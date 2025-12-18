@@ -1,0 +1,9 @@
+product,amount,status,method
+iPhone 15 Pro,89999,Paid,UPI
+Samsung Galaxy S24,74999,Pending,Credit Card
+MacBook Pro M3,189999,Paid,EMI
+AirPods Pro,24999,UnPaid,G Pay
+iPad Air,54999,Paid,PhonePe
+Dell XPS 15,129999,Pending,UPI
+Sony WH-1000XM5,29999,Paid,Credit Card
+Nintendo Switch,34999,UnPaid,UPI

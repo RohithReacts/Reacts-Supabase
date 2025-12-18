@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createClient } from "@/utils/supabase/client";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
+import Papa from "papaparse";
 import {
   Table,
   TableBody,
@@ -25,7 +26,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Pencil, Trash2, Search } from "lucide-react";
+import { Pencil, Trash2, Search, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -51,6 +52,7 @@ export function SalesTable() {
   const [users, setUsers] = useState<SaleUser[]>([]);
   const [open, setOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -67,6 +69,7 @@ export function SalesTable() {
   } | null>(null);
   const [showSelectedDialog, setShowSelectedDialog] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const supabase = createClient();
 
@@ -126,6 +129,27 @@ export function SalesTable() {
     }
     setDeleteDialogOpen(false);
     setUserToDelete(null);
+  };
+
+  const confirmBulkDelete = async () => {
+    const idsToDelete = Array.from(selectedRows);
+
+    if (idsToDelete.length === 0) return;
+
+    const { error } = await supabase
+      .from("sales")
+      .delete()
+      .in("id", idsToDelete);
+
+    if (error) {
+      console.error("Error deleting sales:", error);
+      toast.error("Failed to delete selected sales");
+    } else {
+      toast.success(`Successfully deleted ${idsToDelete.length} sale(s)`);
+      setSelectedRows(new Set());
+      fetchSales();
+    }
+    setBulkDeleteDialogOpen(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -267,6 +291,67 @@ export function SalesTable() {
     toast.success("Excel exported successfully");
   };
 
+  const handleCSVImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: async (results) => {
+        try {
+          const data = results.data as Array<{
+            product?: string;
+            amount?: string;
+            status?: string;
+            method?: string;
+          }>;
+
+          // Validate and prepare data
+          const validData = data
+            .filter((row) => row.product && row.amount)
+            .map((row) => ({
+              product: row.product || "",
+              amount: row.amount || "",
+              status: row.status || "Pending",
+              method: row.method || "UPI",
+            }));
+
+          if (validData.length === 0) {
+            toast.error("No valid data found in CSV file");
+            return;
+          }
+
+          // Bulk insert to Supabase
+          const { error } = await supabase.from("sales").insert(validData);
+
+          if (error) {
+            console.error("Error importing CSV:", error);
+            toast.error("Failed to import CSV data");
+          } else {
+            toast.success(
+              `Successfully imported ${validData.length} record(s)`
+            );
+            fetchSales();
+            setOpen(false);
+          }
+        } catch (error) {
+          console.error("Error processing CSV:", error);
+          toast.error("Failed to process CSV file");
+        }
+
+        // Reset file input
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+      },
+      error: (error) => {
+        console.error("Error parsing CSV:", error);
+        toast.error("Failed to parse CSV file");
+      },
+    });
+  };
+
   // Filter users based on search query
   const filteredUsers = users.filter((user) => {
     const searchLower = searchQuery.toLowerCase();
@@ -325,6 +410,13 @@ export function SalesTable() {
               >
                 Export Excel
               </Button>
+              <Button
+                className="cursor-pointer"
+                onClick={() => setBulkDeleteDialogOpen(true)}
+                variant="destructive"
+              >
+                Delete All
+              </Button>
             </div>
           )}
         </div>
@@ -340,7 +432,7 @@ export function SalesTable() {
               <DialogDescription>
                 {editingId
                   ? "Edit the sales details below."
-                  : "Enter the sales details for the new user here."}{" "}
+                  : "Enter the sales details for the new user here, or import from CSV."}{" "}
                 Click save when you're done.
               </DialogDescription>
             </DialogHeader>
@@ -421,7 +513,28 @@ export function SalesTable() {
                   />
                 </div>
               </div>
-              <DialogFooter>
+              <DialogFooter className="flex-col sm:flex-row gap-2">
+                {!editingId && (
+                  <>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept=".csv"
+                      onChange={handleCSVImport}
+                      className="hidden"
+                      id="csv-upload"
+                    />
+                    <Button
+                      className="cursor-pointer mr-30"
+                      type="button"
+                      variant="outline"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <Upload className="h-4 w-4 mr-2" />
+                      Import CSV
+                    </Button>
+                  </>
+                )}
                 <Button
                   className="cursor-pointer"
                   type="submit"
@@ -459,6 +572,41 @@ export function SalesTable() {
                 onClick={confirmDelete}
               >
                 Yes
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog
+          open={bulkDeleteDialogOpen}
+          onOpenChange={setBulkDeleteDialogOpen}
+        >
+          <DialogContent className="h-[200px] w-full sm:w-[425px] dark:bg-black">
+            <DialogHeader>
+              <DialogTitle>
+                Delete {selectedRows.size} selected item(s)?
+              </DialogTitle>
+              <DialogDescription>
+                This action cannot be undone. This will permanently delete all
+                selected sale entries.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button
+                className="cursor-pointer"
+                variant="outline"
+                size="lg"
+                onClick={() => setBulkDeleteDialogOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                className="cursor-pointer"
+                variant="destructive"
+                size="lg"
+                onClick={confirmBulkDelete}
+              >
+                Delete All
               </Button>
             </DialogFooter>
           </DialogContent>
