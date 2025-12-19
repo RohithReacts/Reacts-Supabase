@@ -4,6 +4,7 @@ import { signup } from "../auth/actions";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Button } from "@/components/ui/button";
+import { SubmitButton } from "@/components/submit-button";
 import Link from "next/link";
 import { Metadata } from "next";
 
@@ -36,8 +37,8 @@ export default async function SignupPage() {
                     <Input
                       name="name"
                       type="text"
-                      placeholder="John Doe"
-                      className="bg-zinc-900/70 ring-1 ring-white/10 placeholder:text-zinc-500 focus:ring-blue-500/60"
+                      placeholder="Reacts"
+                      className="bg-zinc-900/70 border-white/10 text-zinc-100 placeholder:text-zinc-500"
                     />
                   </div>
 
@@ -46,8 +47,8 @@ export default async function SignupPage() {
                     <Input
                       name="email"
                       type="email"
-                      placeholder="you@domain.com"
-                      className="bg-zinc-900/70 ring-1 ring-white/10 placeholder:text-zinc-500 focus:ring-blue-500/60"
+                      placeholder="rohithreacts.dev@gmail.com"
+                      className="bg-zinc-900/70 border-white/10 text-zinc-100 placeholder:text-zinc-500"
                     />
                   </div>
 
@@ -56,13 +57,17 @@ export default async function SignupPage() {
                     <PasswordInput
                       name="password"
                       placeholder="Create a strong password"
-                      className="bg-zinc-900/70 ring-1 ring-white/10 placeholder:text-zinc-500 focus:ring-blue-500/60"
+                      className="bg-zinc-900/70 border-white/10 text-zinc-100 placeholder:text-zinc-500"
                     />
                   </div>
 
-                  <Button type="submit" className="w-full">
+                  <SubmitButton
+                    type="submit"
+                    className="w-full"
+                    loadingText="Creating user…"
+                  >
                     Create account
-                  </Button>
+                  </SubmitButton>
 
                   <div className="flex items-center justify-between pt-2">
                     <p className="text-sm text-zinc-400">
@@ -70,7 +75,7 @@ export default async function SignupPage() {
                     </p>
                     <Link
                       href="/login"
-                      className="text-sm font-medium hover:text-blue-300 transition"
+                      className="text-sm font-medium text-white hover:text-blue-300 transition"
                     >
                       Sign in
                     </Link>

@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Button } from "@/components/ui/button";
+import { SubmitButton } from "@/components/submit-button";
 import { login } from "../auth/actions";
 
 export const metadata: Metadata = {
@@ -51,7 +52,7 @@ export default async function LoginPage() {
                       name="email"
                       type="email"
                       autoComplete="email"
-                      placeholder="you@domain.com"
+                      placeholder="rohithreacts.dev@gmail.com"
                       className="bg-zinc-900/70 border-white/10 text-zinc-100 placeholder:text-zinc-500"
                     />
                   </div>
@@ -78,12 +79,13 @@ export default async function LoginPage() {
                     />
                   </div>
 
-                  <Button
+                  <SubmitButton
                     formAction={login}
                     className="w-full cursor-pointer"
+                    loadingText="Signing you in…"
                   >
                     Sign in
-                  </Button>
+                  </SubmitButton>
                 </form>
 
                 <p className="text-center text-sm text-zinc-400">

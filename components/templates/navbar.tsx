@@ -23,6 +23,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { signout } from "@/app/auth/actions";
 import { Button } from "../ui/button";
+import { SubmitButton } from "../submit-button";
 import { User } from "@supabase/supabase-js";
 import { SettingsDialog } from "./settings-dialog";
 
@@ -151,9 +152,13 @@ export function Navbar({ user }: NavbarProps): React.JSX.Element {
                 asChild
               >
                 <form action={signout} className="w-full">
-                  <button className="justify-center items-center font-sans">
+                  <SubmitButton
+                    className="justify-center items-center font-sans w-full bg-transparent text-black hover:bg-transparent dark:text-white"
+                    variant="ghost"
+                    loadingText="Logging you out…"
+                  >
                     Sign Out
-                  </button>
+                  </SubmitButton>
                 </form>
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -202,13 +207,14 @@ export function Navbar({ user }: NavbarProps): React.JSX.Element {
               ))}
 
               <form action={signout}>
-                <Button
+                <SubmitButton
                   variant="outline"
                   className="mt-3 cursor-pointer"
                   onClick={() => setIsOpen(false)}
+                  loadingText="Logging you out…"
                 >
                   Sign Out
-                </Button>
+                </SubmitButton>
               </form>
             </ul>
           </motion.div>

@@ -24,6 +24,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { SpinnerButton } from "@/components/ui/spinner-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Pencil, Trash2, Search, Upload } from "lucide-react";
@@ -235,34 +236,99 @@ export function SalesTable() {
   const handleExportPDF = () => {
     const doc = new jsPDF();
 
-    doc.setFontSize(18);
-    doc.text("Sales Report", 14, 22);
+    // Add Logo
+    const logoUrl = "/logo.png";
+    const img = new Image();
+    img.src = logoUrl;
 
-    const selectedUsers = users.filter((u) => selectedRows.has(u.id));
-    const tableData = selectedUsers.map((user) => [
-      user.product,
-      user.status,
-      user.method,
-      user.amount,
-      new Date(user.created_at).toLocaleString("en-IN", {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hour12: false,
-      }),
-    ]);
+    // We need to wait for the image to load if we want to be sure it's there,
+    // but for simplicity in this synchronous flow, we'll assume it's cached or try to load it.
+    // A better approach for production is to load it once or use a data URI.
+    // For now, let's try to add it directly if it's available, or use a placeholder.
+    // Since we can't easily do async image loading inside this sync function without refactoring,
+    // we will try to use the image if it's already loaded or just add text.
+    // However, jsPDF addImage usually works with data URIs or preloaded images.
+    // Let's try to fetch it and convert to Data URL first if possible, or just add it.
 
-    autoTable(doc, {
-      head: [["Product", "Status", "Method", "Amount", "Date Time"]],
-      body: tableData,
-      startY: 30,
-    });
+    // Actually, let's make this async to handle the image loading properly
+    const generatePDF = async () => {
+      try {
+        // Load image
+        const loadImage = (url: string) => {
+          return new Promise<HTMLImageElement>((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => resolve(img);
+            img.onerror = reject;
+            img.src = url;
+          });
+        };
 
-    doc.save("sales-report.pdf");
-    toast.success("PDF exported successfully");
+        let imgData: HTMLImageElement | null = null;
+        try {
+          imgData = await loadImage(logoUrl);
+        } catch (e) {
+          console.error("Failed to load logo", e);
+        }
+
+        let yPos = 20;
+
+        if (imgData) {
+          const imgWidth = 30; // Fixed width in mm
+          const aspectRatio = imgData.height / imgData.width;
+          const imgHeight = imgWidth * aspectRatio;
+          doc.addImage(imgData, "PNG", 14, 10, imgWidth, imgHeight);
+          yPos = 10 + imgHeight + 10;
+        }
+
+        doc.setFontSize(18);
+        doc.text("Sales Report", 14, yPos);
+        yPos += 10;
+
+        const selectedUsers = users.filter((u) => selectedRows.has(u.id));
+        const tableData = selectedUsers.map((user) => {
+          const cleanAmount = (user.amount || "0")
+            .replace(/[^\d.]/g, "")
+            .trim();
+          const parsedAmount = parseFloat(cleanAmount);
+          const formattedAmount = isNaN(parsedAmount)
+            ? user.amount
+            : `Rs. ${parsedAmount.toLocaleString("en-IN", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}`;
+
+          return [
+            user.product,
+            user.status,
+            user.method,
+            formattedAmount,
+            new Date(user.created_at).toLocaleString("en-IN", {
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+              hour12: false,
+            }),
+          ];
+        });
+
+        autoTable(doc, {
+          head: [["Product", "Status", "Method", "Amount", "Date Time"]],
+          body: tableData,
+          startY: yPos,
+        });
+
+        doc.save("sales-report.pdf");
+        toast.success("PDF exported successfully");
+      } catch (error) {
+        console.error("Error generating PDF:", error);
+        toast.error("Failed to generate PDF");
+      }
+    };
+
+    generatePDF();
   };
 
   const handleExportExcel = () => {
@@ -289,6 +355,85 @@ export function SalesTable() {
 
     XLSX.writeFile(workbook, "sales-report.xlsx");
     toast.success("Excel exported successfully");
+  };
+
+  const handlePrint = () => {
+    const selectedUsers = users.filter((u) => selectedRows.has(u.id));
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) {
+      toast.error("Failed to open print window");
+      return;
+    }
+
+    const tableRows = selectedUsers
+      .map((user) => {
+        const cleanAmount = (user.amount || "0").replace(/[^\d.]/g, "").trim();
+        const parsedAmount = parseFloat(cleanAmount);
+        const formattedAmount = isNaN(parsedAmount)
+          ? user.amount
+          : `Rs. ${parsedAmount.toLocaleString("en-IN", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}`;
+
+        return `
+        <tr>
+          <td>${user.product}</td>
+          <td>${user.status}</td>
+          <td>${user.method}</td>
+          <td>${formattedAmount}</td>
+          <td>${new Date(user.created_at).toLocaleString("en-IN", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+            hour12: false,
+          })}</td>
+        </tr>
+      `;
+      })
+      .join("");
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>ReactsSales</title>
+          <style>
+            body { font-family: sans-serif; padding: 20px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+            th { background-color: #f2f2f2; }
+            h1 { text-align: center; }
+          </style>
+        </head>
+        <body>
+          <h1>Sales Report</h1>
+          <table>
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Status</th>
+                <th>Method</th>
+                <th>Amount</th>
+                <th>Date Time</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${tableRows}
+            </tbody>
+          </table>
+          <script>
+            window.onload = function() { window.print(); window.close(); }
+          </script>
+        </body>
+      </html>
+    `;
+
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
   };
 
   const handleCSVImport = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -396,20 +541,24 @@ export function SalesTable() {
               >
                 Show
               </Button>
-              <Button
-                className="cursor-pointer"
-                onClick={handleExportPDF}
-                variant="outline"
+              <Select
+                onValueChange={(value) => {
+                  if (value === "pdf") handleExportPDF();
+                  if (value === "excel") handleExportExcel();
+                  if (value === "print") handlePrint();
+                }}
               >
-                Export PDF
-              </Button>
-              <Button
-                className="cursor-pointer"
-                onClick={handleExportExcel}
-                variant="outline"
-              >
-                Export Excel
-              </Button>
+                <SelectTrigger className="w-[100px]">
+                  <SelectValue placeholder="Save as " />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectItem value="pdf">Pdf</SelectItem>
+                    <SelectItem value="excel">Excel</SelectItem>
+                    <SelectItem value="print">Print</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
               <Button
                 className="cursor-pointer"
                 onClick={() => setBulkDeleteDialogOpen(true)}
@@ -538,13 +687,19 @@ export function SalesTable() {
                       </Button>
                     </>
                   )}
-                  <Button
-                    className="cursor-pointer"
-                    type="submit"
-                    disabled={loading}
-                  >
-                    {loading ? "Saving..." : "Save changes"}
-                  </Button>
+                  {loading ? (
+                    <SpinnerButton>
+                      {editingId ? "Saving..." : "Creating user…"}
+                    </SpinnerButton>
+                  ) : (
+                    <Button
+                      className="cursor-pointer"
+                      type="submit"
+                      disabled={loading}
+                    >
+                      Save changes
+                    </Button>
+                  )}
                 </DialogFooter>
               </form>
             </DialogContent>
